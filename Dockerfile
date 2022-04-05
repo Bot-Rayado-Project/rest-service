@@ -7,4 +7,4 @@ COPY . .
 RUN pip install poetry
 RUN poetry install
 
-CMD ["uvicorn" "main:app"]
+CMD ["uvicorn", "main:app"]
