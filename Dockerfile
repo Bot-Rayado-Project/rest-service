@@ -4,7 +4,6 @@ WORKDIR /rest-service
 
 COPY . .
 
-RUN pip install poetry
-RUN poetry install
+RUN pip install -r requrements.txt
 
 CMD ["uvicorn", "main:app"]

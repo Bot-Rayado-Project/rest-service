@@ -8,8 +8,8 @@ authors = ["darttusin <ivanchepikov444@gmail.com>"]
 python = "3.10.2"
 fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
-databases = {extras = ["postgresql"], version = "^0.5.5"}
 asyncpg = "^0.25.0"
+uvloop = "^0.16.0"
 
 [tool.poetry.dev-dependencies]
 
