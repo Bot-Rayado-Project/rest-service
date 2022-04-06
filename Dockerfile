@@ -11,5 +11,5 @@ RUN poetry config virtualenvs.create false \
 
 CMD ["uvicorn", "main:app"]
 
-#  sudo docker build -t rest .
+# sudo docker build -t rest .
 # sudo docker run -p 8000:8000 --net host rest
