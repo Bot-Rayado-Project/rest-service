@@ -1,4 +1,0 @@
-fastapi == 0.75.1
-uvicorn == 0.17.6
-asyncpg == 0.25.0
-uvloop == 0.16.0
