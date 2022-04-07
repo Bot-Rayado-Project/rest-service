@@ -1,16 +1,16 @@
 import asyncpg
 from utils.constants import SQL_SELECT_SCHEDULE
-from utils.constants import USER, PASSWORD, HOST, NAME
-
-async def db_connect(user: str, password: str, name: str, host: str):
-    conn = await asyncpg.connect(user=user, password=password, database=name, host=host)
-    return conn
 
 
-async def get_schedule_from_database(group: str, day: str, even: bool):
-    conn = await db_connect(USER, PASSWORD, HOST, NAME)
-    schedule = await conn.fetch(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even))
-    await conn.close()
+async def db_connect(user: str = 'postgres', password: str = 'admin', name: str = 'schedules', host: str = 'localhost'):
+    connection = await asyncpg.connect(user=user, password=password, database=name, host=host)
+    return connection
+
+async def db_close(connection):
+    await connection.close()
+
+async def get_schedule_from_database(connection, group: str, day: str, even: bool):
+    schedule = await connection.fetch(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even))
     if len(schedule) == 0:
         return "Empty"
     else:
