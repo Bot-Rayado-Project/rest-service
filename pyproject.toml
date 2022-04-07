@@ -8,7 +8,7 @@ authors = ["darttusin <ivanchepikov444@gmail.com>"]
 python = "3.10.2"
 fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
-asyncpg = "^0.25.0"
+psycopg2 = "^2.9.3"
 uvloop = "^0.16.0"
 
 [tool.poetry.dev-dependencies]
