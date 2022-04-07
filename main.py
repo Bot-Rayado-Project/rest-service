@@ -9,9 +9,9 @@ async def get_schedule(group: str, day: str, even: bool, week: bool):
 
     if week:
         connection = db_connect(USER, PASSWORD, NAME, HOST)
-        message = get_full_schedule_from_database(connection, group, day, even)
+        message = get_full_schedule_from_database(connection, group, even)
         db_close(connection)
-        return {'schedule' : tuple(message)}
+        return {'schedule' : message}
     else:
         connection = db_connect(USER, PASSWORD, NAME, HOST)
         message = get_schedule_from_database(connection, group, day, even)

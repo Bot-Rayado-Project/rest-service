@@ -1,4 +1,3 @@
-from debugpy import connect
 import psycopg2
 from utils.constants import SQL_SELECT_SCHEDULE, SQL_SELECT_FULL_SCHEDULE
 
@@ -20,7 +19,7 @@ def get_schedule_from_database(connection, group: str, day: str, even: bool):
         return schedule[0]
 
 
-async def get_full_schedule_from_database(connection, group: str, even: bool):
+def get_full_schedule_from_database(connection, group: str, even: bool):
     cursor = connection.cursor()
     cursor.execute(SQL_SELECT_FULL_SCHEDULE.format(group.lower(), even))
     schedule = cursor.fetchall()
