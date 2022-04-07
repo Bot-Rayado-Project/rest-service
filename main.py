@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.get('/{group}/{day}/{even}/{week}', status_code=200)
 async def get_schedule(group: str, day: str, even: bool, week: bool):
-    connection = db_connect(USER, PASSWORD, HOST, NAME)
+    connection = db_connect(USER, PASSWORD, NAME, HOST)
     message = get_schedule_from_database(connection, group, day, even)
     db_close(connection)
     if week:
