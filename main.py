@@ -12,7 +12,7 @@ async def get_schedule(group: str, day: str, even: bool, week: bool):
     if week:
         return {'schedule' : 'Error'}
     else:
-        return {'schedule': str(message)}
+        return {'schedule': message[0]}
 
 
 
