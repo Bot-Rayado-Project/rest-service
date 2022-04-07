@@ -11,7 +11,10 @@ async def get_schedule_from_database(group: str, day: str, even: bool):
     conn = await db_connect(USER, PASSWORD, HOST, NAME)
     schedule = await conn.fetch(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even))
     await conn.close()
-    return schedule
+    if len(schedule) == 0:
+        return "Empty"
+    else:
+        return dict(schedule)[0]
 
 """ 
 async def get_full_schedule_from_database(group: str, even: bool):
