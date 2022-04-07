@@ -11,7 +11,8 @@ def db_close(connection):
 
 def get_schedule_from_database(connection, group: str, day: str, even: bool):
     cursor = connection.cursor()
-    schedule = cursor.fetchall(cursor.execute(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even)))
+    cursor.execute(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even))
+    schedule = cursor.fetchall()
     if len(schedule) == 0:
         return "Empty"
     else:
