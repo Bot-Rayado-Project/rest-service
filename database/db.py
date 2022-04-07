@@ -6,10 +6,10 @@ def db_connect(user: str = 'postgres', password: str = 'admin', name: str = 'sch
     connection = psycopg2.connect(user=user, password=password, dbname=name, host=host)
     return connection
 
-async def db_close(connection):
+def db_close(connection):
     connection.close()
 
-async def get_schedule_from_database(connection, group: str, day: str, even: bool):
+def get_schedule_from_database(connection, group: str, day: str, even: bool):
     cursor = connection.cursor()
     schedule = cursor.fetchall(cursor.execute(SQL_SELECT_SCHEDULE.format(group.lower(), day.lower(), even)))
     if len(schedule) == 0:
