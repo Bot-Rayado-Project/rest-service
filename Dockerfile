@@ -1,15 +1,29 @@
 FROM python:3.10.2
 
+ARG ENVIRON
+
+ENV ENVIRON=${ENVIRON} \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100 \
+  POETRY_VERSION=1.0.0
+
+# System deps:
+RUN pip install "poetry==$POETRY_VERSION"
+
+# Copy only requirements to cache them in docker layer:
 WORKDIR /rest-service
+COPY poetry.lock pyproject.toml /rest-service//
 
-COPY . .
-
-RUN pip install poetry
+# Project initialization:
 RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+  && poetry install --no-dev --no-interaction --no-ansi
 
+# Creating folders, and files for a project:
+COPY . /rest-service/
 
+# Setting start comand to uvicorn:
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
-
-# sudo docker build -t rest .
-# sudo docker run -p 8000:8000 --net host rest

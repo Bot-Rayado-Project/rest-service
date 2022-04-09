@@ -1,6 +1,6 @@
 import logging
 import logging.handlers
-from parser.utils.constants import DBUSER, DBNAME, DBHOST, DBPASSWORD, REPEAT_DELAY, DEBUG, EADRESS, EPASSWORD
+from utils.constants import DBUSER, DBNAME, DBHOST, DBPASSWORD, DEBUG, EADRESS, EPASSWORD
 
 log_format = '%(asctime)s.%(msecs)03d %(filename)s:%(lineno)d %(levelname)s %(message)s'
 
@@ -16,7 +16,7 @@ def get_smtp_handler() -> logging.handlers.SMTPHandler:
     smtp_handler = logging.handlers.SMTPHandler(mailhost=("smtp.gmail.com", 587),
                                                 fromaddr=str(EADRESS),
                                                 toaddrs=str(EADRESS),
-                                                subject=u"Schedule-parser error!",
+                                                subject=u"Rest-service error!",
                                                 credentials=(str(EADRESS), str(EPASSWORD)),
                                                 secure=())
     smtp_handler.setLevel(logging.ERROR)
@@ -42,9 +42,10 @@ def get_logger(name: str) -> logging.Logger:
 
 
 logger = get_logger(__name__)
-logger.info(f'{DBUSER}')
-logger.info(f'{DBNAME}')
-logger.info(f'{DBHOST}')
-logger.info(f'{DBPASSWORD}')
-logger.info(f'{REPEAT_DELAY}')
-logger.info(f'{DEBUG}')
+logger.info(f'DBUSER: {DBUSER}')
+logger.info(f'DBNAME: {DBNAME}')
+logger.info(f'DBHOST: {DBHOST}')
+logger.info(f'DBPASSWORD: {DBPASSWORD}')
+logger.info(f'DEBUG: {DEBUG}')
+logger.info(f'EADRESS: {EADRESS}')
+logger.info(f'EPASSWORD: {EPASSWORD}')
