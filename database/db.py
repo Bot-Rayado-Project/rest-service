@@ -37,15 +37,15 @@ async def db_close(connection: asyncpg.Connection) -> None:
         await asyncio.sleep(0.33)
 
 
-async def db_get_schedule(group: str, dayofweek: str, even: bool, fullweek: bool, connection: typing.Optional[asyncpg.Connection] = None) -> dict:
+async def db_get_schedule(group: str, even: bool, day: typing.Optional[str] = None, connection: typing.Optional[asyncpg.Connection] = None) -> dict:
     '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
     connection = connection or await db_connect(DBUSER, DBPASSWORD, DBNAME, DBHOST)
-    if not fullweek:
-        database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND dayofweek = '{dayofweek}' AND even='{even}'")
+    if day is not None:
+        database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND dayofweek = '{day}' AND even='{even}'")
     else:
         database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND even='{even}'")
     if len(database_responce) == 0:
         await db_close(connection)
         raise HTTPException(status_code=404, detail="Schedule not found")
     await db_close(connection)
-    return dict(database_responce[0]) if not fullweek else dict(schedule=(dict(database_responce[0]), dict(database_responce[1]), dict(database_responce[2]), dict(database_responce[3]), dict(database_responce[4]), dict(database_responce[5])))
+    return dict(database_responce[0]) if day is not None else dict(schedule=(dict(database_responce[0]), dict(database_responce[1]), dict(database_responce[2]), dict(database_responce[3]), dict(database_responce[4]), dict(database_responce[5])))
