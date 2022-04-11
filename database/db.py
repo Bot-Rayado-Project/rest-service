@@ -46,7 +46,7 @@ async def db_get_schedule(group: str, even: bool, day: typing.Optional[str] = No
         database_responce: list = []
         for _day in DAYS_ENG:
             _database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND dayofweek = '{_day}' AND even='{even}'")
-            if len(database_responce) == 0:
+            if len(_database_responce) == 0:
                 await db_close(connection)
                 raise HTTPException(status_code=404, detail=f"Schedule for {_day} not found")
             database_responce.append(dict(_day=dict(_database_responce[0])['schedule']))
