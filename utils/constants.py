@@ -16,5 +16,7 @@ DEBUG = os.environ.get('DEBUG') or False
 SQL_SELECT_SCHEDULE = "SELECT schedule FROM schedule_table WHERE streamgroup='{}' AND dayofweek = '{}' AND even='{}'"
 SQL_SELECT_FULL_SCHEDULE = "SELECT schedule FROM schedule_table WHERE streamgroup='{}' AND even='{}'"
 
+DAYS_ENG = ['ponedelnik', 'vtornik', 'sreda', 'chetverg', 'pjatnitsa', 'subbota']
+
 if DBUSER == None or DBPASSWORD == None or DBNAME == None or DBHOST == None:
     raise NoneException

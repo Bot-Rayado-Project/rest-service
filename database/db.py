@@ -1,6 +1,6 @@
 import typing
 from utils.logger import get_logger
-from utils.constants import DBUSER, DBPASSWORD, DBHOST, DBNAME
+from utils.constants import DBUSER, DBPASSWORD, DBHOST, DBNAME, DAYS_ENG
 from fastapi import HTTPException
 import asyncpg
 import asyncio
@@ -43,9 +43,15 @@ async def db_get_schedule(group: str, even: bool, day: typing.Optional[str] = No
     if day is not None:
         database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND dayofweek = '{day}' AND even='{even}'")
     else:
-        database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND even='{even}'")
+        database_responce: list = []
+        for _day in DAYS_ENG:
+            _database_responce: list = await connection.fetch(f"SELECT schedule FROM schedule_table WHERE streamgroup='{group}' AND dayofweek = '{_day}' AND even='{even}'")
+            if len(database_responce) == 0:
+                await db_close(connection)
+                raise HTTPException(status_code=404, detail=f"Schedule for {_day} not found")
+            database_responce.append(dict(_day=dict(_database_responce[0])['schedule']))
     if len(database_responce) == 0:
         await db_close(connection)
         raise HTTPException(status_code=404, detail="Schedule not found")
     await db_close(connection)
-    return dict(database_responce[0]) if day is not None else dict(schedule=(dict(database_responce[0]), dict(database_responce[1]), dict(database_responce[2]), dict(database_responce[3]), dict(database_responce[4]), dict(database_responce[5])))
+    return dict(database_responce[0]) if day is not None else dict(schedule=database_responce)
