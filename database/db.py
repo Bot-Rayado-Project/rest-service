@@ -49,7 +49,7 @@ async def db_get_schedule(group: str, even: bool, day: typing.Optional[str] = No
             if len(_database_responce) == 0:
                 await db_close(connection)
                 raise HTTPException(status_code=404, detail=f"Schedule for {_day} not found")
-            database_responce.append(dict(_day=dict(_database_responce[0])['schedule']))
+            database_responce.append(dict(schedule=dict(_database_responce[0])['schedule']))
     if len(database_responce) == 0:
         await db_close(connection)
         raise HTTPException(status_code=404, detail="Schedule not found")
