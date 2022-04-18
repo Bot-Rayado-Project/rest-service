@@ -1,4 +1,32 @@
 import os
+from pydantic import BaseModel
+
+
+class BaseHeadmanRequest(BaseModel):
+    week: str
+    dayofweek: str
+    group: str
+
+
+class ChangePair(BaseHeadmanRequest):
+    pair: int
+    changes: str
+
+
+class AddAnnotation(BaseHeadmanRequest):
+    annotation: str
+
+
+class RemovePair(BaseHeadmanRequest):
+    pair: int
+
+
+class ResetSchedule(BaseHeadmanRequest):
+    ...
+
+
+class RemoveAnnotation(BaseHeadmanRequest):
+    ...
 
 
 class NoneException(Exception):
@@ -20,3 +48,11 @@ DAYS_ENG = ['ponedelnik', 'vtornik', 'sreda', 'chetverg', 'pjatnitsa', 'subbota'
 
 if DBUSER == None or DBPASSWORD == None or DBNAME == None or DBHOST == None:
     raise NoneException
+
+TIME = {
+    1: '9:30 - 11:05\n',
+    2: '11:20 - 12:55\n',
+    3: '13:10 - 14:45\n',
+    4: '15:25 - 17:00\n',
+    5: '17:15 - 18:50\n'
+}
