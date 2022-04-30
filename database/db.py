@@ -13,7 +13,8 @@ logger = get_logger(__name__)
 url = f"postgresql+asyncpg://{DBUSER}:{DBPASSWORD}@{DBHOST}:{DBPORT}/{DBNAME}"
 
 engine = create_async_engine(url, future=True, echo=False)
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession)
 
 
 async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.Optional[str] = None) -> dict:
@@ -61,10 +62,12 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                 shared_schedule_dal = SharedScheduleDAL(session)
                 shared_schedule = await shared_schedule_dal.get_shared_schedule(stream_group, day, parity)
                 if len(shared_schedule) == 0:
-                    raise HTTPException(status_code=404, detail="Schedule not found")
+                    raise HTTPException(
+                        status_code=404, detail="Schedule not found")
 
                 if len(shared_schedule) != 1:
-                    logger.error(f'Length of shared_schedule does not equal to 1: {shared_schedule}')
+                    logger.error(
+                        f'Length of shared_schedule does not equal to 1: {shared_schedule}')
                     raise Exception('Shared schedule != 1')
                 else:
                     shared_schedule = shared_schedule[0]
@@ -105,7 +108,8 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                     _headman_changes = {1: '', 2: '', 3: '', 4: '', 5: ''}
                     headman_changes_pair_numbers = await headman_changes_dal.get_all_headman_changes_pair_numbers(stream_group, day, parity)
                     for i in range(len(headman_changes)):
-                        _headman_changes[headman_changes_pair_numbers[i]] = headman_changes[i]
+                        _headman_changes[headman_changes_pair_numbers[i]
+                                         ] = headman_changes[i]
                     headman_changes = _headman_changes
 
                 personal_changes_dal = PersonalChangesDAL(session)
@@ -116,7 +120,8 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                     _personal_changes = {1: '', 2: '', 3: '', 4: '', 5: ''}
                     personal_changes_pair_numbers = await personal_changes_dal.get_all_personal_changes_pair_numbers(id, stream_group, day, parity)
                     for i in range(len(personal_changes)):
-                        _personal_changes[personal_changes_pair_numbers[i]] = personal_changes[i]
+                        _personal_changes[personal_changes_pair_numbers[i]
+                                          ] = personal_changes[i]
                     personal_changes = _personal_changes
 
                 return {'shared_schedule': {day: shared_schedule},
@@ -148,7 +153,8 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
 
                     _shared_schedule = await shared_schedule_dal.get_shared_schedule(stream_group, _day, parity)
                     if len(_shared_schedule) != 1:
-                        logger.error(f'Length of _shared_schedule does not equal to 1 (full week requested): {shared_schedule}')
+                        logger.error(
+                            f'Length of _shared_schedule does not equal to 1 (full week requested): {shared_schedule}')
                         raise Exception('Shared schedule != 1')
                     shared_schedule[_day] = _shared_schedule[0]
 
@@ -187,7 +193,8 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                         _headman_changes_ = {1: '', 2: '', 3: '', 4: '', 5: ''}
                         _headman_changes_pair_numbers = await headman_changes_dal.get_all_headman_changes_pair_numbers(stream_group, _day, parity)
                         for i in range(len(_headman_changes)):
-                            _headman_changes_[_headman_changes_pair_numbers[i]] = _headman_changes[i]
+                            _headman_changes_[
+                                _headman_changes_pair_numbers[i]] = _headman_changes[i]
                         _headman_changes = _headman_changes_
                     headman_changes[_day] = _headman_changes
 
@@ -195,10 +202,12 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                     if len(_personal_changes) == 0:
                         _personal_changes = {1: '', 2: '', 3: '', 4: '', 5: ''}
                     else:
-                        _personal_changes_ = {1: '', 2: '', 3: '', 4: '', 5: ''}
+                        _personal_changes_ = {
+                            1: '', 2: '', 3: '', 4: '', 5: ''}
                         _personal_changes_pair_numbers = await personal_changes_dal.get_all_personal_changes_pair_numbers(id, stream_group, _day, parity)
                         for i in range(len(_personal_changes)):
-                            _personal_changes_[_personal_changes_pair_numbers[i]] = _personal_changes[i]
+                            _personal_changes_[
+                                _personal_changes_pair_numbers[i]] = _personal_changes[i]
                         _personal_changes = _personal_changes_
                     personal_changes[_day] = _personal_changes
 

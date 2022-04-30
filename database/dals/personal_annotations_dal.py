@@ -12,7 +12,8 @@ class PersonalAnnotationsDAL:
         self.db_session = db_session
 
     async def create_personal_annotation(self, id: int, stream_group: str, day: str, parity: str, annotation: str) -> None:
-        new_annotation = PersonalAnnotation(id=id, stream_group=stream_group, day=day, parity=parity, annotation=annotation)
+        new_annotation = PersonalAnnotation(
+            id=id, stream_group=stream_group, day=day, parity=parity, annotation=annotation)
         self.db_session.add(new_annotation)
         await self.db_session.flush()
 

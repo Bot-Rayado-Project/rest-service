@@ -12,7 +12,8 @@ class HeadmanChangesDAL:
         self.db_session = db_session
 
     async def create_headman_changes(self, stream_group: str, day: str, parity: str, pair_number: int, changes: str) -> None:
-        new_change = HeadmanChange(stream_group=stream_group, day=day, parity=parity, pair_number=pair_number, changes=changes)
+        new_change = HeadmanChange(stream_group=stream_group, day=day,
+                                   parity=parity, pair_number=pair_number, changes=changes)
         self.db_session.add(new_change)
         await self.db_session.flush()
 

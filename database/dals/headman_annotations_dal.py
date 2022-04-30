@@ -11,7 +11,8 @@ class HeadmanAnnotationsDAL:
         self.db_session = db_session
 
     async def create_headman_annotation(self, stream_group: str, day: str, parity: str, annotation: str) -> None:
-        new_annotation = HeadmanAnnotation(stream_group=stream_group, day=day, parity=parity, annotation=annotation)
+        new_annotation = HeadmanAnnotation(
+            stream_group=stream_group, day=day, parity=parity, annotation=annotation)
         self.db_session.add(new_annotation)
         await self.db_session.flush()
 

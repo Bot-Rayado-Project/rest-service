@@ -5,7 +5,7 @@ description = ""
 authors = ["darttusin <ivanchepikov444@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.10.2"
+python = "^3.10"
 fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
 asyncpg = "^0.25.0"

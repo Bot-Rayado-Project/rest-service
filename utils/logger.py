@@ -17,7 +17,8 @@ def get_smtp_handler() -> logging.handlers.SMTPHandler:
                                                 fromaddr=str(EADRESS),
                                                 toaddrs=str(EADRESS),
                                                 subject=u"Rest-service error!",
-                                                credentials=(str(EADRESS), str(EPASSWORD)),
+                                                credentials=(
+                                                    str(EADRESS), str(EPASSWORD)),
                                                 secure=())
     smtp_handler.setLevel(logging.ERROR)
     smtp_handler.setFormatter(logging.Formatter(log_format))

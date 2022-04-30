@@ -12,7 +12,8 @@ class SharedScheduleDAL:
         self.db_session = db_session
 
     async def create_shared_schedule(self, stream_group: str, day: str, parity: str, schedule: str) -> None:
-        new_schedule = SharedSchedule(stream_group=stream_group, day=day, parity=parity, schedule=schedule)
+        new_schedule = SharedSchedule(
+            stream_group=stream_group, day=day, parity=parity, schedule=schedule)
         self.db_session.add(new_schedule)
         await self.db_session.flush()
 
