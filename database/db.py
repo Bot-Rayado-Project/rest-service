@@ -1,17 +1,9 @@
 import typing
+
 from utils.logger import get_logger
-from utils.constants import DBUSER, DBPASSWORD, DBHOST, DBNAME, DAYS_ENG, DBPORT
+from utils.constants import DBUSER, DBPASSWORD, DBHOST, DBNAME, DAYS_ENG, DBPORT, TIME
+from database.dals import *
 from fastapi import HTTPException
-
-from database.dals.shared_schedule_dal import SharedScheduleDAL
-from database.dals.headman_schedule_dal import HeadmanScheduleDAL
-from database.dals.personal_schedule_dal import PersonalScheduleDAL
-from database.dals.headman_annotations_dal import HeadmanAnnotationsDAL
-from database.dals.personal_annotations_dal import PersonalAnnotationsDAL
-from database.dals.headman_changes_dal import HeadmanChangesDAL
-from database.dals.personal_changes_dal import PersonalChangesDAL
-from utils.constants import TIME
-
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
@@ -25,7 +17,44 @@ async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession
 
 
 async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.Optional[str] = None) -> dict:
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+    '''Асинхронно обращается к базе данных и забирает оттуда расписание. При отсутствии дня выводит всю неделю.
+    Если общее расписание оказывается пустым, вызывает 404 Not Found Exception
+    Пример вывода:
+{
+    "shared_schedule": {
+        "chetverg": "Не пустая строка"
+    },
+    "headman_schedule": {
+        "chetverg": ""
+    },
+    "personal_schedule": {
+        "chetverg": ""
+    },
+    "headman_annotation": {
+        "chetverg": ""
+    },
+    "personal_annotation": {
+        "chetverg": ""
+    },
+    "headman_changes": {
+        "chetverg": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": ""
+        }
+    },
+    "personal_changes": {
+        "chetverg": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": ""
+        }
+    }
+}'''
     async with async_session() as session:
         async with session.begin():
             if day is not None:
@@ -182,8 +211,8 @@ async def db_get_schedule(id: int, stream_group: str, parity: bool, day: typing.
                         'personal_changes': personal_changes}
 
 
-async def db_set_headman_schedule(stream_group: str, day: str, parity: str, pair_number: int, changes: typing.Optional[str] = 'Пары нет'):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_set_headman_schedule(stream_group: str, day: str, parity: str, pair_number: int, changes: typing.Optional[str] = 'Пары нет') -> None:
+    '''Создает либо обновляет расписание, изменненное старостой'''
     async with async_session() as session:
         async with session.begin():
             headman_schedule_dal = HeadmanScheduleDAL(session)
@@ -213,8 +242,8 @@ async def db_set_headman_schedule(stream_group: str, day: str, parity: str, pair
                     await headman_changes_dal.update_headman_changes(stream_group, day, parity, pair_number, changes)
 
 
-async def db_set_personal_schedule(id: int, stream_group: str, day: str, parity: str, pair_number: int, changes: typing.Optional[str] = 'Пары нет'):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_set_personal_schedule(id: int, stream_group: str, day: str, parity: str, pair_number: int, changes: typing.Optional[str] = 'Пары нет') -> None:
+    '''Создает либо обновляет расписание, изменненное персонально'''
     async with async_session() as session:
         async with session.begin():
             personal_schedule_dal = PersonalScheduleDAL(session)
@@ -245,6 +274,8 @@ async def db_set_personal_schedule(id: int, stream_group: str, day: str, parity:
 
 
 async def compile_schedule(schedule: str, pair_number: int, changes: str) -> str:
+    '''Принимает текущее расписание, номер пары для изменения и сами изменения. Заменяет пару
+    на нужную строку и возвращает расписание в общем виде'''
     schedule = schedule[0].split('⸻⸻⸻⸻⸻\n')
     if changes == 'Пары нет':
         schedule[pair_number - 1] = changes + '\n'
@@ -257,7 +288,8 @@ async def compile_schedule(schedule: str, pair_number: int, changes: str) -> str
     return _schedule
 
 
-async def db_reset_day_headman(stream_group: str, day: str, parity: str):
+async def db_reset_day_headman(stream_group: str, day: str, parity: str) -> None:
+    '''Удаляет все, связанное с запрашиваемым днем для старосты'''
     async with async_session() as session:
         async with session.begin():
 
@@ -274,7 +306,8 @@ async def db_reset_day_headman(stream_group: str, day: str, parity: str):
             await headman_changes_dal.delete_all_headman_changes(stream_group, day, parity)
 
 
-async def db_reset_day_personal(id: int, stream_group: str, day: str, parity: str):
+async def db_reset_day_personal(id: int, stream_group: str, day: str, parity: str) -> None:
+    '''Удаляет все, связанное с запрашиваемым днем для персонального'''
     async with async_session() as session:
         async with session.begin():
 
@@ -291,8 +324,8 @@ async def db_reset_day_personal(id: int, stream_group: str, day: str, parity: st
             await personal_changes_dal.delete_all_personal_changes(id, stream_group, day, parity)
 
 
-async def db_set_annotation_headman(stream_group: str, day: str, parity: str, annotation: str):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_set_annotation_headman(stream_group: str, day: str, parity: str, annotation: str) -> None:
+    '''Создает или обновляет аннотацию для старосты'''
     async with async_session() as session:
         async with session.begin():
             headman_annotations_dal = HeadmanAnnotationsDAL(session)
@@ -303,8 +336,8 @@ async def db_set_annotation_headman(stream_group: str, day: str, parity: str, an
                 await headman_annotations_dal.update_headman_annotation(stream_group, day, parity, annotation)
 
 
-async def db_set_annotation_personal(id: int, stream_group: str, day: str, parity: str, annotation: str):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_set_annotation_personal(id: int, stream_group: str, day: str, parity: str, annotation: str) -> None:
+    '''Создает или обновляет аннотацию для персонального'''
     async with async_session() as session:
         async with session.begin():
             personal_annotations_dal = PersonalAnnotationsDAL(session)
@@ -315,16 +348,16 @@ async def db_set_annotation_personal(id: int, stream_group: str, day: str, parit
                 await personal_annotations_dal.update_personal_annotation(id, stream_group, day, parity, annotation)
 
 
-async def db_remove_annotation_headman(stream_group: str, day: str, parity: str):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_remove_annotation_headman(stream_group: str, day: str, parity: str) -> None:
+    '''Удаляет аннотацию старосты'''
     async with async_session() as session:
         async with session.begin():
             headman_annotations_dal = HeadmanAnnotationsDAL(session)
             await headman_annotations_dal.delete_headman_annotation(stream_group, day, parity)
 
 
-async def db_remove_annotation_personal(id: int, stream_group: str, day: str, parity: str):
-    '''Забирает расписание по запросу. При запросе на полную неделю обязано вернуть 6 строк'''
+async def db_remove_annotation_personal(id: int, stream_group: str, day: str, parity: str) -> None:
+    '''Удаляет аннотацию персонального'''
     async with async_session() as session:
         async with session.begin():
             personal_annotations_dal = PersonalAnnotationsDAL(session)

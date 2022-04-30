@@ -1,4 +1,3 @@
-import re
 from database.db import *
 from utils.requests import *
 from utils.logger import get_logger
