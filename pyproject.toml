@@ -10,6 +10,7 @@ fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
 asyncpg = "^0.25.0"
 SQLAlchemy = {extras = ["asyncio"], version = "^1.4.35"}
+transliterate = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"
