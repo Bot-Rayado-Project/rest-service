@@ -1,6 +1,7 @@
 from database.db import *
 from utils.requests import *
 from utils.logger import get_logger
+from utils.constants import DAYS_ENG, DAYS_MATCHING, PARITY_RU, PARITY_MATCHING
 from fastapi import FastAPI
 
 
@@ -12,6 +13,8 @@ app = FastAPI()
 @app.get('/schedule/')
 async def get_schedule(id: int, stream_group: str, parity: str, day: str | None = None):
     '''GET запрос на получение расписания по группе, четности недели и дню недели'''
+    day = DAYS_MATCHING.get(day) if day not in DAYS_ENG else day
+    parity = PARITY_MATCHING.get(parity) if parity not in PARITY_RU else parity
     schedule_dict: dict = await db_get_schedule(id=id, stream_group=stream_group, parity=parity, day=day)
     return schedule_dict
 

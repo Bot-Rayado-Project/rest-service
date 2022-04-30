@@ -18,6 +18,7 @@ SQL_SELECT_SCHEDULE = "SELECT schedule FROM schedule_table WHERE streamgroup='{}
 SQL_SELECT_FULL_SCHEDULE = "SELECT schedule FROM schedule_table WHERE streamgroup='{}' AND even='{}'"
 
 DAYS_ENG = ['ponedelnik', 'vtornik', 'sreda', 'chetverg', 'pjatnitsa', 'subbota']
+PARITY_RU = ['четная', 'нечетная']
 
 if DBUSER == None or DBPASSWORD == None or DBNAME == None or DBHOST == None:
     raise NoneException
@@ -28,4 +29,18 @@ TIME = {
     3: '13:10 - 14:45\n',
     4: '15:25 - 17:00\n',
     5: '17:15 - 18:50\n'
+}
+
+DAYS_MATCHING = {
+    'понедельник': 'ponedelnik',
+    'вторник': 'vtornik',
+    'среда': 'sreda',
+    'четверг': 'chetverg',
+    'пятница': 'pjatnitsa',
+    'суббота': 'subbota'
+}
+
+PARITY_MATCHING = {
+    'chetnaja': 'четная',
+    'nechetnaja': 'нечетная'
 }
