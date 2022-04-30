@@ -1,32 +1,4 @@
 import os
-from pydantic import BaseModel
-
-
-class BaseHeadmanRequest(BaseModel):
-    week: str
-    dayofweek: str
-    group: str
-
-
-class ChangePair(BaseHeadmanRequest):
-    pair: int
-    changes: str
-
-
-class AddAnnotation(BaseHeadmanRequest):
-    annotation: str
-
-
-class RemovePair(BaseHeadmanRequest):
-    pair: int
-
-
-class ResetSchedule(BaseHeadmanRequest):
-    ...
-
-
-class RemoveAnnotation(BaseHeadmanRequest):
-    ...
 
 
 class NoneException(Exception):
@@ -36,6 +8,7 @@ class NoneException(Exception):
 DBUSER = os.environ.get('DBUSER')
 DBNAME = os.environ.get('DBNAME')
 DBHOST = os.environ.get('DBHOST')
+DBPORT = os.environ.get('DBPORT')
 DBPASSWORD = os.environ.get('DBPASSWORD')
 EADRESS = os.environ.get('EADRESS')
 EPASSWORD = os.environ.get('EPASSWORD')

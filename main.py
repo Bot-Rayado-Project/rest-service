@@ -1,6 +1,7 @@
-from database.db import db_get_schedule, db_reset_schedule, db_set_custom_schedule, db_get_annotation, db_add_annotation, db_remove_annotation
+import re
+from database.db import *
+from utils.requests import *
 from utils.logger import get_logger
-from utils.constants import ChangePair, RemovePair, ResetSchedule, AddAnnotation, RemoveAnnotation, TIME
 from fastapi import FastAPI
 
 
@@ -10,55 +11,77 @@ app = FastAPI()
 
 
 @app.get('/schedule/')
-async def get_schedule(group: str, even: bool, day: str | None = None):
+async def get_schedule(id: int, stream_group: str, parity: str, day: str | None = None):
     '''GET запрос на получение расписания по группе, четности недели и дню недели'''
-    schedule_dict: dict = await db_get_schedule(group=group, even=even, day=day)
-    schedule_dict['annotation'] = await db_get_annotation(group=group, even=even, day=day)
+    schedule_dict: dict = await db_get_schedule(id=id, stream_group=stream_group, parity=parity, day=day)
     return schedule_dict
 
 
-@app.post('/change-schedule/')
-async def change_schedule(request: ChangePair):
-    '''POST запрос на запись изменений в расписание'''
-    current_schedule = (await db_get_schedule(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek))["schedule"].split('⸻⸻⸻⸻⸻\n')
-    current_schedule[request.pair - 1] = TIME[request.pair] + request.changes
-    schedule = ''
-    del current_schedule[-1]
-    for pair in current_schedule:
-        schedule += pair + '⸻⸻⸻⸻⸻\n'
-    await db_set_custom_schedule(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek, schedule=schedule)
+@app.post('/change-schedule-headman/')
+async def change_schedule_headman(request: ChangeScheduleHeadman):
+    '''POST запрос на запись изменений в расписании старосты'''
+    await db_set_headman_schedule(request.stream_group, request.day, request.parity, request.pair_number, request.changes)
     return {"ok": True}
 
 
-@app.post('/remove-pair/')
-async def remove_pair(request: RemovePair):
+@app.post('/change-schedule-personal/')
+async def change_schedule_personal(request: ChangeSchedulePersonal):
+    '''POST запрос на запись изменений в расписании персональном'''
+    await db_set_personal_schedule(request.id, request.stream_group, request.day, request.parity, request.pair_number, request.changes)
+    return {"ok": True}
+
+
+@app.post('/remove-pair-headman/')
+async def remove_pair_headman(request: RemovePairHeadman):
     '''POST запрос на удаление пары из расписания'''
-    current_schedule = (await db_get_schedule(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek))["schedule"].split('⸻⸻⸻⸻⸻\n')
-    current_schedule[request.pair - 1] = 'Пары нет\n'
-    schedule = ''
-    del current_schedule[-1]
-    for pair in current_schedule:
-        schedule += pair + '⸻⸻⸻⸻⸻\n'
-    await db_set_custom_schedule(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek, schedule=schedule)
+    await db_set_headman_schedule(request.stream_group, request.day, request.parity, request.pair_number)
     return {"ok": True}
 
 
-@app.delete('/reset-schedule/')
-async def reset_schedule(request: ResetSchedule):
-    '''DELETE запрос на сброс измененного расписания в первоначальное состояние'''
-    await db_reset_schedule(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek)
+@app.post('/remove-pair-personal/')
+async def remove_pair_personal(request: RemovePairPersonal):
+    '''POST запрос на удаление пары из расписания'''
+    await db_set_personal_schedule(request.id, request.stream_group, request.day, request.parity, request.pair_number)
     return {"ok": True}
 
 
-@app.post('/add-annotation/')
-async def add_annotation(request: AddAnnotation):
+@app.post('/reset-schedule-headman/')
+async def reset_schedule_headman(request: ResetScheduleHeadman):
+    '''POST запрос на сброс измененного расписания в первоначальное состояние'''
+    await db_reset_day_headman(request.stream_group, request.day, request.parity)
+    return {"ok": True}
+
+
+@app.post('/reset-schedule-personal/')
+async def reset_schedule_personal(request: ResetSchedulePersonal):
+    '''POST запрос на сброс измененного расписания в первоначальное состояние'''
+    await db_reset_day_personal(request.id, request.stream_group, request.day, request.parity)
+    return {"ok": True}
+
+
+@app.post('/add-annotation-headman/')
+async def add_annotation_headman(request: AddAnnotationHeadman):
     '''POST запрос на запись аннтоации ко дню определенной группы и четности недели'''
-    await db_add_annotation(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek, annotation=request.annotation)
+    await db_set_annotation_headman(request.stream_group, request.day, request.parity, request.annotation)
     return {"ok": True}
 
 
-@app.delete('/remove-annotation/')
-async def remove_annotation(request: RemoveAnnotation):
-    '''DELETE запрос на сброс измененного расписания в первоначальное состояние'''
-    await db_remove_annotation(group=request.group, even=(True if request.week.lower() == 'четная' else False), day=request.dayofweek)
+@app.post('/add-annotation-personal/')
+async def add_annotation_personal(request: AddAnnotationPersonal):
+    '''POST запрос на запись аннтоации ко дню определенной группы и четности недели'''
+    await db_set_annotation_personal(request.id, request.stream_group, request.day, request.parity, request.annotation)
+    return {"ok": True}
+
+
+@app.post('/remove-annotation-headman/')
+async def remove_annotation_headman(request: RemoveAnnotationHeadman):
+    '''POST запрос на сброс измененного расписания в первоначальное состояние'''
+    await db_remove_annotation_headman(request.stream_group, request.day, request.parity)
+    return {"ok": True}
+
+
+@app.post('/remove-annotation-personal/')
+async def remove_annotation_personal(request: RemoveAnnotationPersonal):
+    '''POST запрос на сброс измененного расписания в первоначальное состояние'''
+    await db_remove_annotation_personal(request.id, request.stream_group, request.day, request.parity)
     return {"ok": True}
